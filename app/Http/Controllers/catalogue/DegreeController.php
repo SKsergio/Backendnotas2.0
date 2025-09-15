@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
-
-use App\Models\Grados;
-use Illuminate\Http\Request;
+namespace App\Http\Controllers\catalogue;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
+use App\Models\catalogues\Degree;
+use Illuminate\Http\Request;
 
-class GradosController extends Controller
+class DegreeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,7 +19,7 @@ class GradosController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+     public function store(Request $request)
     {
         $validacion = Validator::make($request->all(), [
             'name' => 'required|string|max:10',
@@ -40,7 +40,7 @@ class GradosController extends Controller
         $code = $request->code;
 
         try {
-            $newDegree = Grados::create([
+            $newDegree = Degree::create([
                 'name' => $name,
                 'code' => $code
             ]);
@@ -65,7 +65,7 @@ class GradosController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Grados $grados)
+    public function show(Degree $degree)
     {
         //
     }
@@ -73,7 +73,7 @@ class GradosController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Grados $grados)
+    public function update(Request $request, Degree $degree)
     {
         //
     }
@@ -81,7 +81,7 @@ class GradosController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Grados $grados)
+    public function destroy(Degree $degree)
     {
         //
     }

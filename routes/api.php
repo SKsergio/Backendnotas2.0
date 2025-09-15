@@ -2,10 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\GradosController;
+use App\Http\Controllers\catalogue\DegreeController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/deegres', [GradosController::class, 'store']);
+Route::post('/deegres', [DegreeController::class, 'store']);
