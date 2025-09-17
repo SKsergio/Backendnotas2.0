@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('degrees', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code');
+            $table->string('name', 15);
+            $table->string('code', 12)->unique();
             $table->softDeletes();
             $table->timestamps();
 
