@@ -2,8 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\catalogue\DegreeController;
-use App\Http\Controllers\catalogue\PeriodsController;
+use App\Http\Controllers\catalogues\DegreeController;
+use App\Http\Controllers\catalogues\PeriodsController;
+use App\Http\Controllers\catalogues\SectionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -23,13 +24,22 @@ Route::prefix('catalog')->group(function() {
         Route::delete('/{id}', [DegreeController::class, 'destroy']);
         Route::post('/{id}/restore', [DegreeController::class, 'restore']);
     });
-
-        Route::prefix('periods')->group(function () {
+    //periods routees
+    Route::prefix('periods')->group(function () {
         Route::get('/', [PeriodsController::class, 'index']);
         Route::post('/periods', [PeriodsController::class, 'create']);
         Route::patch('/{id}', [PeriodsController::class, 'partialUpdate']);
         Route::get('/{id}', [PeriodsController::class, 'show']);
         Route::delete('/{id}', [PeriodsController::class, 'destroy']);
         Route::post('/{id}/restore', [PeriodsController::class, 'restore']);
+    });
+    //sections routes
+    Route::prefix('sections')->group(function () {
+        Route::get('/', [SectionController::class, 'index']);
+        Route::post('/', [SectionController::class, 'store']);
+        Route::patch('/{id}', [SectionController::class, 'partialUpdate']);
+        Route::get('/{id}', [SectionController::class, 'show']);
+        Route::delete('/{id}', [SectionController::class, 'destroy']);
+        Route::post('/{id}/restore', [SectionController::class, 'restore']);
     });
 });

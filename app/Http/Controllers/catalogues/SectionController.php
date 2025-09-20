@@ -1,36 +1,38 @@
 <?php
 
-namespace App\Http\Controllers\catalogue;
+namespace App\Http\Controllers\catalogues;
 
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
-use App\Models\catalogues\Degree;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Models\catalogues\Sections;
 
-class DegreeController extends Controller
+class SectionController extends Controller
 {
-    //funcion para traer todos los grados
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        $degrees = Degree::all();
-
-        if ($degrees->isEmpty()) {
+        $sections = Sections::all();
+        
+        if ($sections->isEmpty()) {
             return response()->json([
-                'message' => 'No hay grados para mostrar'
-            ], 200);
+                'message' => 'No hay Secciones para mostrar'
+            ], 401);
         }
 
-        return response()->json($degrees, 200);
+        return response()->json($sections, 200);
     }
 
-    //funcion para almencenar nuevo grado
-    public function store(Request $request)
+    /**
+     * Store a newly created resource in storage.
+     */
+     public function store(Request $request)
     {
-
         $validacion = Validator::make($request->all(), [
             'name' => 'required|string|max:12',
-            'code' => 'required|string|max:12|unique:degrees',
+            'code' => 'required|string|max:12|unique:sections',
         ]);
 
         if ($validacion->fails()) {
@@ -46,12 +48,12 @@ class DegreeController extends Controller
         $code = $request->code;
 
         try {
-            $newDegree = Degree::create([
+            $newSection = Sections::create([
                 'name' => $name,
                 'code' => $code
             ]);
 
-            return response()->json($newDegree, 201);
+            return response()->json($newSection, 201);
         } catch (\Exception $e) {
 
             return response()->json([
@@ -62,34 +64,38 @@ class DegreeController extends Controller
         }
     }
 
-    //funcion para traer un solo greado
-    public function show($id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
     {
-        $degree = Degree::find($id);
+        $section = Sections::find($id);
 
-        if (!$degree) {
+        if (!$section) {
             return response()->json([
-                'message' => 'No hay grado para mostrar con este id'
+                'message' => 'No hay seccion para mostrar con este id'
             ], 404);
         }
 
-        return response()->json($degree, 200);
+        return response()->json($section, 200);
     }
 
-    //funcion para actualizar
-    public function partialUpdate(Request $request, $id)
+    /**
+     * Update the specified resource in storage.
+     */
+     public function partialUpdate(Request $request, $id)
     {
-        $degree = Degree::find($id);
+        $section = Sections::find($id);
 
-        if (!$degree) {
+        if (!$section) {
             return response()->json([
-                'message' => 'No hay grado para mostrar con este id'
+                'message' => 'No hay secciones para mostrar con este id'
             ], 404);
         }
       
         $validacion = Validator::make($request->all(), [
             'name' => 'string|max:12',
-            'code' => 'string|max:12|unique:degrees,code,' . $id . ',id',
+            'code' => 'string|max:12|unique:sections,code,' . $id . ',id',
         ]);
 
         if ($validacion->fails()) {
@@ -106,15 +112,15 @@ class DegreeController extends Controller
 
         try {
             if ($request->has('name')) {
-                $degree->name = $name;
+                $section->name = $name;
             }
             if ($request->has('code')) {
-                $degree->code = $code;
+                $section->code = $code;
             }
 
-            $degree->save();
+            $section->save();
 
-            return response()->json($degree, 201);
+            return response()->json($section, 201);
         } catch (\Exception $e) {
     
             return response()->json([
@@ -124,27 +130,22 @@ class DegreeController extends Controller
         }
     }
 
-    //eliminar un grado
+    //eliminar una seccion
     public function destroy($id)
     {
-        $degree = Degree::find($id);
+        $section = Sections::find($id);
 
-        if (!$degree) {
+        if (!$section) {
             return response()->json([
-                'message' => 'No hay grado para eliminar con este id'
+                'message' => 'No hay seccion para eliminar con este id'
             ], 404);
         }
 
         try {
-            $degree->delete();
+            $section->delete();
 
             return response()->noContent(); 
         } catch (\Exception $e) {
-            $data = [
-                'message' => 'ocurrio un error en el servidor',
-                'error' => $e->getMessage(),
-                'status' => 500
-            ];
             return response()->json([
                 'message' => 'Ocurrió un error interno',
                 'error' => $e->getMessage()
@@ -155,16 +156,16 @@ class DegreeController extends Controller
     //funcion para devolver un registro
     public function restore($id)
     {
-        $degree = Degree::withTrashed()->find($id);
+        $section = Sections::withTrashed()->find($id);
 
-        if (!$degree) {
+        if (!$section) {
             return response()->json([
-                'message' => 'No hay grado para eliminar con este id'
+                'message' => 'No hay seccion para eliminar con este id'
             ], 404);
         }
 
-        $degree->restore();
+        $section->restore();
 
-       return response()->json($degree, 200);
+       return response()->json($section, 200);
     }
 }

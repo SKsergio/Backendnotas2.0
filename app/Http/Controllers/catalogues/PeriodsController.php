@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\catalogue;
+namespace App\Http\Controllers\catalogues;
 
 use App\Models\catalogues\Periods;
 use Illuminate\Http\Request;
