@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\catalogues\DegreeController;
 use App\Http\Controllers\catalogues\PeriodsController;
 use App\Http\Controllers\catalogues\SectionController;
+use App\Http\Controllers\catalogues\ClassroomController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -41,5 +42,15 @@ Route::prefix('catalog')->group(function() {
         Route::get('/{id}', [SectionController::class, 'show']);
         Route::delete('/{id}', [SectionController::class, 'destroy']);
         Route::post('/{id}/restore', [SectionController::class, 'restore']);
+    });
+
+    //sections routes
+    Route::prefix('classrooms')->group(function () {
+        Route::get('/', [ClassroomController::class, 'index']);
+        Route::post('/', [ClassroomController::class, 'store']);
+        Route::patch('/{id}', [ClassroomController::class, 'partialUpdate']);
+        Route::get('/{id}', [ClassroomController::class, 'show']);
+        Route::delete('/{id}', [ClassroomController::class, 'destroy']);
+        Route::post('/{id}/restore', [ClassroomController::class, 'restore']);
     });
 });
