@@ -10,15 +10,25 @@ use Illuminate\Http\Request;
 class DegreeController extends Controller
 {
     //funcion para traer todos los grados
-    public function index()
+    public function index(Request $request)
     {
-        $degrees = Degree::all();
+        $query = Degree::query();
+
+        //filtros de search en caso que vengan
+        if ($request->has('search')) {
+            $search = $request->get('search');//obtener el valor a buscar
+            $query->where(function ($q) use ($search){
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        $degrees = $query->get();
 
         if ($degrees->isEmpty()) {
-            return response()->json([
-                'message' => 'No hay grados para mostrar'
-            ], 401);
+            return response()->json([], 200);
         }
+
 
         return response()->json($degrees, 200);
     }
@@ -36,9 +46,9 @@ class DegreeController extends Controller
             $data = [
                 'message' => 'Error en la validacion de datos',
                 'error' => $validacion->errors(),
-                'status' => 401
+                'status' => 422
             ];
-            return response()->json($data, 401);
+            return response()->json($data, 422);
         }
 
         $name = $request->name;
