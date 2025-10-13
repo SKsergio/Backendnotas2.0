@@ -12,14 +12,25 @@ class SectionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sections = Sections::all();
+
+        $query = Sections::query();
+
+        //filtros de search en caso que vengan
+        if ($request->has('search')) {
+            $search = $request->get('search');//obtener el valor a buscar
+            $query->where(function ($q) use ($search){
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        $sections = $query->get();
+
 
         if ($sections->isEmpty()) {
-            return response()->json([
-                'message' => 'No hay Secciones para mostrar'
-            ], 401);
+            return response()->json([], 200);
         }
 
         return response()->json($sections, 200);

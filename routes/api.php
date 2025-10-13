@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\catalogues\DegreeController;
-use App\Http\Controllers\catalogue\EvaluationTypesController;
+use App\Http\Controllers\catalogues\EvaluationTypesController;
 use App\Http\Controllers\catalogues\PeriodsController;
 use App\Http\Controllers\catalogue\SubjectsController;
 use App\Http\Controllers\catalogues\SectionController;
@@ -16,7 +16,7 @@ Route::get('/user', function (Request $request) {
 /*NOTA, ACA SE VA A TRABAJAR PARA QUE SE MANEJE CON AUTENTICACION DE RUTAS Y EN GRUPOS, DE MOMENTO 
 LO VAMOS IR DEJANDO ASI, PERO EN CUANTO SE PUEDA HAREMOS EL CAMBIO PARA MENAJRSEE POR GRUPO*/
 
-Route::prefix('catalog')->group(function() {
+Route::prefix('catalog')->group(function () {
 
     //degrees routes
     Route::prefix('degrees')->group(function () {
@@ -36,7 +36,7 @@ Route::prefix('catalog')->group(function() {
         Route::delete('/{id}', [PeriodsController::class, 'destroy']);
         Route::post('/{id}/restore', [PeriodsController::class, 'restore']);
     });
-        Route::prefix('evaluationType')->group(function () {
+    Route::prefix('evaluationTypes')->group(function () {
         Route::get('/', [EvaluationTypesController::class, 'index']);
         Route::post('/', [EvaluationTypesController::class, 'create']);
         Route::patch('/{id}', [EvaluationTypesController::class, 'edit']);
@@ -44,7 +44,7 @@ Route::prefix('catalog')->group(function() {
         Route::delete('/{id}', [EvaluationTypesController::class, 'destroy']);
         Route::post('/{id}/restore', [EvaluationTypesController::class, 'restore']);
     });
-        Route::prefix('subjects')->group(function () {
+    Route::prefix('subjects')->group(function () {
         Route::get('/', [SubjectsController::class, 'index']);
         Route::post('/', [SubjectsController::class, 'create']);
         Route::patch('/{id}', [SubjectsController::class, 'edit']);
