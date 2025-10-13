@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers\catalogue;
 
-use App\Models\catalogues\Periods;
+use App\Models\catalogues\evaluationTypes;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class PeriodsController extends Controller
+class EvaluationTypesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $periods = Periods::all();
-
-        if($periods->isEmpty()){
-            $data = [
-                'message' => 'No hay periodos para mostrar',
-                'status' => 204
-            ];
-            return response()->json($data, 204);
+        $evaluationTypes = EvaluationTypes::all();
+        
+        if($evaluationTypes->isEmpty()){
+            return response()->json([
+                'message' => 'No hay tipos de evaluaciones para mostrar'
+            ], 204);
         }
 
-        return response()->json($periods, 200);
+        return response()->json($evaluationTypes, 200);
     }
 
     /**
@@ -35,9 +33,6 @@ class PeriodsController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'code' => 'required',
-            'year' => 'required',
-            'from' => 'required',
-            'to' => 'required',
         ]);
 
         if($validator->fails()){
@@ -51,16 +46,20 @@ class PeriodsController extends Controller
             return response()->json($data, 401);
         }
 
-        $periods = Periods::create([
+        $evaluationTypes = EvaluationTypes::create([
             'name' => $request->name,
-            'code' => $request->code,
-            'dateTimes' => now(),
-            'year' => $request->year,
-            'from' => $request->from,
-            'to' => $request->to
+            'code' => $request->code
         ]);
 
-        return response()->json($periods, 201);
+        return response()->json($evaluationTypes, 201);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
     }
 
     /**
@@ -68,17 +67,17 @@ class PeriodsController extends Controller
      */
     public function show($id)
     {
-        $periods = Periods::find($id);
+        $evaluationTypes = evaluationTypes::find($id);
 
-        if(!$periods){
+        if(!$evaluationTypes){
             $data = [
-                'message' => 'Periodo no encontrado',
+                'message' => 'Tipo de evaluacion no encontrado con este id',
                 'status' => 404
             ];
             return response()->json($data, 404);
         }
 
-        return response()->json($periods, 200);
+        return response()->json($evaluationTypes, 200);
     }
 
     /**
@@ -86,11 +85,11 @@ class PeriodsController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        $periods = Periods::find($id);
+        $evaluationTypes = evaluationTypes::find($id);
 
-        if(!$periods){
+        if(!$evaluationTypes){
             $data = [
-                'message' => 'El periodo no se ha encontrado',
+                'message' => 'No hay tipo de evaluacion para mnostrar con este id',
                 'status' => 404
             ];
             return response()->json($data, 404);
@@ -100,31 +99,25 @@ class PeriodsController extends Controller
         [
             'name' => 'string|max:12',
             'code' => 'string|max:12|unique:degrees,code,' . $id . ',id',
-            'year' => 'integer',
-            'from' => 'date',
-            'to' => 'date',
         ]);
 
         if($validator->fails()){
             $data = [
-                'message' => 'Error en la validacion para actualizar este grado',
+                'message' => 'Error en la validacion para actualizar este tipo de evaluacion',
                 'errors' => $validator->errors(),
                 'status' => 400
             ];
             return response()->json($data, 400);
         }
 
-        $periods->name = $request->name;
-        $periods->code = $request->code;
-        $periods->year = $request->year;
-        $periods->from = $request->from;
-        $periods->to = $request->to;
+        $evaluationTypes->name = $request->name;
+        $evaluationTypes->code = $request->code;
 
-        $periods->save();
+        $evaluationTypes->save();
 
         $data = [
-            'message' => 'Grado actualizado',
-            'grado' => $periods,
+            'message' => 'Tipo de evaluacion actualizado',
+            'TipoEvaluacion' => $evaluationTypes,
             'status' => 201
         ];
 
@@ -134,7 +127,7 @@ class PeriodsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Periods $periods)
+    public function update(Request $request, evaluationTypes $evaluationTypes)
     {
         //
     }
@@ -144,34 +137,33 @@ class PeriodsController extends Controller
      */
     public function destroy($id)
     {
-        $periods = Periods::find($id);
+        $evaluationTypes = evaluationTypes::find($id);
 
-        if(!$periods){
+        if(!$evaluationTypes){
             $data = [
-                'message' => 'Periodo no existe',
+                'message' => 'Tipo de evaluacion no existe',
                 'status' => 404
             ];
             return response()->json($data, 404);
         }
         
-        $periods->delete();
+        $evaluationTypes->delete();
 
         return response()->noContent();
     }
 
-        //funcion para devolver un registro
     public function restore($id)
     {
-        $periods = Periods::withTrashed()->find($id);
+        $evaluationTypes = evaluationTypes::withTrashed()->find($id);
 
-        if (!$periods) {
+        if (!$evaluationTypes) {
             return response()->json([
-                'message' => 'No hay periodo para eliminar con este id'
+                'message' => 'No hay tipo de evaluacion para eliminar con este id'
             ], 404);
         }
 
-        $periods->restore();
+        $evaluationTypes->restore();
 
-       return response()->json($periods, 200);
+       return response()->json($evaluationTypes, 200);
     }
 }
