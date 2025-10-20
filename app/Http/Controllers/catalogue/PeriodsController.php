@@ -12,19 +12,28 @@ class PeriodsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $periods = Periods::all();
 
-        if($periods->isEmpty()){
-            $data = [
-                'message' => 'No hay periodos para mostrar',
-                'status' => 204
-            ];
-            return response()->json($data, 204);
+        $query = Periods::query();
+
+        //filtros de search en caso que vengan
+        if ($request->has('search')) {
+            $search = $request->get('search'); //obtener el valor a buscar
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
         }
 
-        return response()->json($periods, 200);
+        $Periods = $query->get();
+
+
+        if ($Periods->isEmpty()) {
+            return response()->json([], 200);
+        }
+
+        return response()->json($Periods, 200);
     }
 
     /**
@@ -40,12 +49,12 @@ class PeriodsController extends Controller
             'to' => 'required',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
 
             $data = [
-            'message' => 'Error en la validacion de datos',
-            'errors' => $validator->errors(),
-            'status' => 401
+                'message' => 'Error en la validacion de datos',
+                'errors' => $validator->errors(),
+                'status' => 401
             ];
 
             return response()->json($data, 401);
@@ -70,7 +79,7 @@ class PeriodsController extends Controller
     {
         $periods = Periods::find($id);
 
-        if(!$periods){
+        if (!$periods) {
             $data = [
                 'message' => 'Periodo no encontrado',
                 'status' => 404
@@ -88,7 +97,7 @@ class PeriodsController extends Controller
     {
         $periods = Periods::find($id);
 
-        if(!$periods){
+        if (!$periods) {
             $data = [
                 'message' => 'El periodo no se ha encontrado',
                 'status' => 404
@@ -96,16 +105,18 @@ class PeriodsController extends Controller
             return response()->json($data, 404);
         }
 
-        $validator = Validator::make($request->all(),
-        [
-            'name' => 'string|max:12',
-            'code' => 'string|max:12|unique:degrees,code,' . $id . ',id',
-            'year' => 'integer',
-            'from' => 'date',
-            'to' => 'date',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => 'string|max:12',
+                'code' => 'string|max:12|unique:degrees,code,' . $id . ',id',
+                'year' => 'integer',
+                'from' => 'date',
+                'to' => 'date',
+            ]
+        );
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             $data = [
                 'message' => 'Error en la validacion para actualizar este grado',
                 'errors' => $validator->errors(),
@@ -146,20 +157,20 @@ class PeriodsController extends Controller
     {
         $periods = Periods::find($id);
 
-        if(!$periods){
+        if (!$periods) {
             $data = [
                 'message' => 'Periodo no existe',
                 'status' => 404
             ];
             return response()->json($data, 404);
         }
-        
+
         $periods->delete();
 
         return response()->noContent();
     }
 
-        //funcion para devolver un registro
+    //funcion para devolver un registro
     public function restore($id)
     {
         $periods = Periods::withTrashed()->find($id);
@@ -172,6 +183,6 @@ class PeriodsController extends Controller
 
         $periods->restore();
 
-       return response()->json($periods, 200);
+        return response()->json($periods, 200);
     }
 }

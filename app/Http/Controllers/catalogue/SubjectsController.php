@@ -12,17 +12,28 @@ class SubjectsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $subjects = Subjects::all();
-        
-        if($subjects->isEmpty()) {
-            return response()->json([
-                'message' => 'No hay materias para mostrar' 
-            ], 204);
+
+        $query = Subjects::query();
+
+        //filtros de search en caso que vengan
+        if ($request->has('search')) {
+            $search = $request->get('search');//obtener el valor a buscar
+            $query->where(function ($q) use ($search){
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('code', 'like', "%{$search}%");
+            });
         }
 
-        return response()->json($subjects, 200);
+        $Subjects = $query->get();
+
+
+        if ($Subjects->isEmpty()) {
+            return response()->json([], 200);
+        }
+
+        return response()->json($Subjects, 200);
     }
 
     /**
