@@ -23,12 +23,17 @@ class DegreeController extends Controller
             });
         }
 
+        if ($request->input('from_date') && $request->input('until_date')) {
+            $from_date = $request->input('from_date');
+            $until_date = $request->input('until_date');
+            $query->whereBetween('created_at', [$from_date, $until_date]);
+        }
+
         $degrees = $query->get();
 
         if ($degrees->isEmpty()) {
             return response()->json([], 200);
         }
-
 
         return response()->json($degrees, 200);
     }

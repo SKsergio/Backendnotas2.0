@@ -12,22 +12,33 @@ class ClassroomController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $classrooms = Classrooms::all();
+        $query = Classrooms::query();
+
+        if ($request->has('search')) {
+            $search = $request->get('search'); //obtener el valor a buscar
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->input('from_date') && $request->input('until_date')) {
+            $from_date = $request->input('from_date');
+            $until_date = $request->input('until_date');
+            $query->whereBetween('created_at', [$from_date, $until_date]);
+        }
+
+        $classrooms = $query->get();
 
         if ($classrooms->isEmpty()) {
-            return response()->json([
-                'message' => 'No hay aulas para mostrar'
-            ], 401);
+            return response()->json([], 200);
         }
 
         return response()->json($classrooms, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validacion = Validator::make($request->all(), [
@@ -66,7 +77,7 @@ class ClassroomController extends Controller
     /**
      * Display the specified resource.
      */
-     public function show(string $id)
+    public function show(string $id)
     {
         $classroom = Classrooms::find($id);
 
@@ -91,7 +102,7 @@ class ClassroomController extends Controller
                 'message' => 'No hay aulas para mostrar con este id'
             ], 404);
         }
-      
+
         $validacion = Validator::make($request->all(), [
             'name' => 'string|max:12',
             'code' => 'string|max:12|unique:classrooms,code,' . $id . ',id',
@@ -121,7 +132,7 @@ class ClassroomController extends Controller
 
             return response()->json($classroom, 201);
         } catch (\Exception $e) {
-    
+
             return response()->json([
                 'message' => 'Ocurrió un error interno',
                 'error' => $e->getMessage()
@@ -129,7 +140,7 @@ class ClassroomController extends Controller
         }
     }
 
-     public function destroy($id)
+    public function destroy($id)
     {
         $classroom = Classrooms::find($id);
 
