@@ -12,17 +12,28 @@ class EvaluationTypesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $evaluationTypes = EvaluationTypes::all();
-        
-        if($evaluationTypes->isEmpty()){
-            return response()->json([
-                'message' => 'No hay tipos de evaluaciones para mostrar'
-            ], 204);
+
+        $query = EvaluationTypes::query();
+
+        //filtros de search en caso que vengan
+        if ($request->has('search')) {
+            $search = $request->get('search');//obtener el valor a buscar
+            $query->where(function ($q) use ($search){
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('code', 'like', "%{$search}%");
+            });
         }
 
-        return response()->json($evaluationTypes, 200);
+        $EvaluationTypes = $query->get();
+
+
+        if ($EvaluationTypes->isEmpty()) {
+            return response()->json([], 200);
+        }
+
+        return response()->json($EvaluationTypes, 200);
     }
 
     /**
