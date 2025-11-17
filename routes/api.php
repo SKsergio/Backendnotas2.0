@@ -27,15 +27,6 @@ Route::prefix('catalog')->group(function () {
         Route::delete('/{id}', [DegreeController::class, 'destroy']);
         Route::post('/{id}/restore', [DegreeController::class, 'restore']);
     });
-    //periods routees
-    Route::prefix('periods')->group(function () {
-        Route::get('/', [PeriodsController::class, 'index']);
-        Route::post('/', [PeriodsController::class, 'create']);
-        Route::patch('/{id}', [PeriodsController::class, 'edit']);
-        Route::get('/{id}', [PeriodsController::class, 'show']);
-        Route::delete('/{id}', [PeriodsController::class, 'destroy']);
-        Route::post('/{id}/restore', [PeriodsController::class, 'restore']);
-    });
     Route::prefix('evaluationTypes')->group(function () {
         Route::get('/', [EvaluationTypesController::class, 'index']);
         Route::post('/', [EvaluationTypesController::class, 'create']);
