@@ -67,7 +67,6 @@ class DegreeController extends Controller
 
             return response()->json($newDegree, 201);
         } catch (\Exception $e) {
-
             return response()->json([
                 'message' => 'Ocurrió un error interno',
                 'error' => $e->getMessage()

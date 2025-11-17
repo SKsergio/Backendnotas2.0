@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\catalogue;
+namespace App\Http\Controllers\catalogues;
 
 use App\Models\catalogues\subjects;
 use Illuminate\Http\Request;
@@ -19,21 +19,34 @@ class SubjectsController extends Controller
 
         //filtros de search en caso que vengan
         if ($request->has('search')) {
-            $search = $request->get('search');//obtener el valor a buscar
-            $query->where(function ($q) use ($search){
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%");
             });
         }
 
-        $Subjects = $query->get();
-
-
-        if ($Subjects->isEmpty()) {
-            return response()->json([], 200);
+        if ($request->input('from_date') && $request->input('until_date')) {
+            $from_date = $request->input('from_date');
+            $until_date = $request->input('until_date');
+            $query->whereBetween('created_at', [$from_date, $until_date]);
         }
 
-        return response()->json($Subjects, 200);
+        try {
+            $Subjects = $query->get();
+
+
+            if ($Subjects->isEmpty()) {
+                return response()->json([], 200);
+            }
+
+            return response()->json($Subjects, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ocurrió un error interno',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -47,7 +60,7 @@ class SubjectsController extends Controller
             'description' => 'required|string|max:255'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             $data = [
                 'message' => 'Error en la validacion de los datos ',
                 'error' => $validator->errors(),
@@ -56,22 +69,20 @@ class SubjectsController extends Controller
             return response()->json($data, 401);
         }
 
-        $subjects = Subjects::create([
-            'name' => $request->name,
-            'code' => $request->code,
-            'description' => $request->description
-        ]);
+        try {
+            $subjects = Subjects::create([
+                'name' => $request->name,
+                'code' => $request->code,
+                'description' => $request->description
+            ]);
 
-        return response()->json($subjects, 201);
-        
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+            return response()->json($subjects, 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ocurrió un error interno',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -81,7 +92,7 @@ class SubjectsController extends Controller
     {
         $subjects = Subjects::find($id);
 
-        if(!$subjects){
+        if (!$subjects) {
             return response()->json([
                 'message' => 'No hay materia para mostrar con este id'
             ], 404);
@@ -97,7 +108,7 @@ class SubjectsController extends Controller
     {
         $subjects = Subjects::find($id);
 
-        if(!$subjects){
+        if (!$subjects) {
             return response()->json([
                 'message' => 'No hay materia con este id'
             ], 404);
@@ -109,7 +120,7 @@ class SubjectsController extends Controller
             'description' => 'required|string|max:255'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             $data = [
                 'message' => 'Error en la validacion de datos',
                 'error' => $validator->errors(),
@@ -135,32 +146,31 @@ class SubjectsController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, subjects $subjects)
-    {
-        //
-    }
-
-    /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
     {
         $subjects = Subjects::find($id);
 
-        if($subjects->isEmpty()){
+        if ($subjects->isEmpty()) {
             return response()->json([
                 'message' => 'No hay materia para eliminar con este id',
             ], 404);
         }
 
-        $subjects->delete();
+        try {
+            $subjects->delete();
 
-        return response()->noContent();
+            return response()->noContent();
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ocurrió un error interno',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-        public function restore($id)
+    public function restore($id)
     {
         $subjects = Subjects::withTrashed()->find($id);
 
@@ -172,6 +182,6 @@ class SubjectsController extends Controller
 
         $subjects->restore();
 
-       return response()->json($subjects, 200);
+        return response()->json($subjects, 200);
     }
 }

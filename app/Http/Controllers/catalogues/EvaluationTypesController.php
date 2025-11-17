@@ -19,11 +19,17 @@ class EvaluationTypesController extends Controller
 
         //filtros de search en caso que vengan
         if ($request->has('search')) {
-            $search = $request->get('search');//obtener el valor a buscar
-            $query->where(function ($q) use ($search){
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%");
             });
+        }
+
+        if ($request->input('from_date') && $request->input('until_date')) {
+            $from_date = $request->input('from_date');
+            $until_date = $request->input('until_date');
+            $query->whereBetween('created_at', [$from_date, $until_date]);
         }
 
         $EvaluationTypes = $query->get();
@@ -42,35 +48,35 @@ class EvaluationTypesController extends Controller
     public function create(Request  $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'code' => 'required',
+            'name' => 'required|string',
+            'code' => 'required|string',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
 
             $data = [
-            'message' => 'Error en la validacion de datos',
-            'errors' => $validator->errors(),
-            'status' => 401
+                'message' => 'Error en la validacion de datos',
+                'errors' => $validator->errors(),
+                'status' => 422
             ];
 
-            return response()->json($data, 401);
+            return response()->json($data, 422);
         }
 
-        $evaluationTypes = EvaluationTypes::create([
-            'name' => $request->name,
-            'code' => $request->code
-        ]);
+        try {
+            $evaluationTypes = EvaluationTypes::create([
+                'name' => $request->name,
+                'code' => $request->code
+            ]);
 
-        return response()->json($evaluationTypes, 201);
-    }
+            return response()->json($evaluationTypes, 201);
+        } catch (\Exception $e) {
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+            return response()->json([
+                'message' => 'Ocurrió un error interno',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -80,7 +86,7 @@ class EvaluationTypesController extends Controller
     {
         $evaluationTypes = evaluationTypes::find($id);
 
-        if(!$evaluationTypes){
+        if (!$evaluationTypes) {
             $data = [
                 'message' => 'Tipo de evaluacion no encontrado con este id',
                 'status' => 404
@@ -98,7 +104,7 @@ class EvaluationTypesController extends Controller
     {
         $evaluationTypes = evaluationTypes::find($id);
 
-        if(!$evaluationTypes){
+        if (!$evaluationTypes) {
             $data = [
                 'message' => 'No hay tipo de evaluacion para mnostrar con este id',
                 'status' => 404
@@ -106,13 +112,15 @@ class EvaluationTypesController extends Controller
             return response()->json($data, 404);
         }
 
-        $validator = Validator::make($request->all(),
-        [
-            'name' => 'string|max:12',
-            'code' => 'string|max:12|unique:degrees,code,' . $id . ',id',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => 'string',
+                'code' => 'string|max:12|unique:evaluation_types,code,' . $id . ',id',
+            ]
+        );
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             $data = [
                 'message' => 'Error en la validacion para actualizar este tipo de evaluacion',
                 'errors' => $validator->errors(),
@@ -126,22 +134,9 @@ class EvaluationTypesController extends Controller
 
         $evaluationTypes->save();
 
-        $data = [
-            'message' => 'Tipo de evaluacion actualizado',
-            'TipoEvaluacion' => $evaluationTypes,
-            'status' => 201
-        ];
-
-        return response()->json($data, 201);
+        return response()->json($evaluationTypes, 201);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, evaluationTypes $evaluationTypes)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -150,17 +145,24 @@ class EvaluationTypesController extends Controller
     {
         $evaluationTypes = evaluationTypes::find($id);
 
-        if(!$evaluationTypes){
+        if (!$evaluationTypes) {
             $data = [
                 'message' => 'Tipo de evaluacion no existe',
                 'status' => 404
             ];
             return response()->json($data, 404);
         }
-        
-        $evaluationTypes->delete();
 
-        return response()->noContent();
+        try {
+            $evaluationTypes->delete();
+
+            return response()->noContent();
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ocurrió un error interno',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function restore($id)
@@ -175,6 +177,6 @@ class EvaluationTypesController extends Controller
 
         $evaluationTypes->restore();
 
-       return response()->json($evaluationTypes, 200);
+        return response()->json($evaluationTypes, 200);
     }
 }

@@ -4,8 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\catalogues\DegreeController;
 use App\Http\Controllers\catalogues\EvaluationTypesController;
-use App\Http\Controllers\catalogues\PeriodsController;
-use App\Http\Controllers\catalogue\SubjectsController;
+use App\Http\Controllers\catalogues\SubjectsController;
 use App\Http\Controllers\catalogues\SectionController;
 use App\Http\Controllers\catalogues\ClassroomController;
 
