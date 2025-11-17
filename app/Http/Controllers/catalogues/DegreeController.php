@@ -41,7 +41,6 @@ class DegreeController extends Controller
     //funcion para almencenar nuevo grado
     public function store(Request $request)
     {
-
         $validacion = Validator::make($request->all(), [
             'name' => 'required|string|max:12',
             'code' => 'required|string|max:12|unique:degrees',

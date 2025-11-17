@@ -42,11 +42,11 @@ class PeriodsController extends Controller
     public function create(Request  $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'code' => 'required',
-            'year' => 'required',
-            'from' => 'required',
-            'to' => 'required',
+            'name' => 'required|string|max:12',
+            'code' => 'required|string|max:12|unique:periods',
+            'year' => 'required|integer',
+            'date_from' => 'required|date|date_format:Y-m-d',
+            'date_to' => 'required|date|date_format:Y-m-d|after_or_equal:from',
         ]);
 
         if ($validator->fails()) {
@@ -60,14 +60,23 @@ class PeriodsController extends Controller
             return response()->json($data, 401);
         }
 
-        $periods = Periods::create([
-            'name' => $request->name,
-            'code' => $request->code,
-            'dateTimes' => now(),
-            'year' => $request->year,
-            'from' => $request->from,
-            'to' => $request->to
-        ]);
+        try {
+            $periods = Periods::create([
+                'name' => $request->name,
+                'code' => $request->code,
+                'dateTimes' => now(),
+                'year' => $request->year,
+                'from' => $request->from,
+                'to' => $request->to
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ocurrio un error interno',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+       
 
         return response()->json($periods, 201);
     }

@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('code');
             $table->dateTime('dateTimes')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->integer('year');
-            $table->date('from');
-            $table->date('to');
+            $table->date('date_from');
+            $table->date('date_to');
             $table->softDeletes();
             $table->timestamps();
         });
