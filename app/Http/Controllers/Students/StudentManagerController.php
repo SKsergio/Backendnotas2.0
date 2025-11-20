@@ -46,7 +46,6 @@ class StudentManagerController extends Controller
     public function store(Request $request)
     {
 
-        // dd('holaaa');
         $validacion = Validator::make($request->all(), [
             'first_name' => 'required|string|max:20',
             'seccond_name' => 'required|string|max:20',
@@ -58,7 +57,9 @@ class StudentManagerController extends Controller
             'birthdate' => 'nullable|date|date_format:Y-m-d',
             'married_surname' => 'nullable|string',
             'email' => 'required|email',
-            'age' => 'required|number'
+            'age' => 'required|integer',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'file_type_id' => 'nullable|integer'
         ]);
 
 
@@ -89,6 +90,25 @@ class StudentManagerController extends Controller
                 'birthdate' => $request->birthdate,
                 'email' => $request->email,
                 'age' => $request->age
+            ]);
+
+            //almacenar la foto
+            $file = $request->file('photo');
+            if (!$file) {
+                return response()->json([
+                    'message' => 'No se envió ningún archivo en el campo "file".'
+                ], 400);
+            }
+
+            $path = $file->store('uploads/ManagerStudents', 'public');
+
+
+
+            $newStudentManager->file()->create([
+                'file_type_id' => $request->file_type_id,
+                'path' => $path,
+                'name' => $file->getClientOriginalName(),
+                'size' =>$file->getClientOriginalExtension()
             ]);
 
             return response()->json($newStudentManager, 201);

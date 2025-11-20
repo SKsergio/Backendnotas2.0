@@ -4,6 +4,7 @@ namespace App\Models\Students;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\File;
 
 
 class StudentsManagers extends Model
@@ -28,4 +29,8 @@ class StudentsManagers extends Model
         'email',
         'age'
     ];
+
+    public function file(){
+        return $this->morphMany(File::class, 'fileable');
+    }
 }

@@ -23,7 +23,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DegreeSeeder::class,
             SectionsSeeder::class,
-            ClassroomsSeeder::class
+            ClassroomsSeeder::class,
+            TypeFileSeeder::class
         ]);
     }
 }

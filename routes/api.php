@@ -8,6 +8,7 @@ use App\Http\Controllers\catalogues\SubjectsController;
 use App\Http\Controllers\catalogues\SectionController;
 use App\Http\Controllers\catalogues\ClassroomController;
 use App\Http\Controllers\Students\StudentManagerController;
+use App\Http\Controllers\catalogues\TypeFilesController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -62,10 +63,20 @@ Route::prefix('catalog')->group(function () {
         Route::delete('/{id}', [ClassroomController::class, 'destroy']);
         Route::post('/{id}/restore', [ClassroomController::class, 'restore']);
     });
+
+    //sections routes
+    Route::prefix('type_files')->group(function () {
+        Route::get('/', [TypeFilesController::class, 'index']);
+        Route::post('/', [TypeFilesController::class, 'store']);
+        Route::patch('/{id}', [TypeFilesController::class, 'partialUpdate']);
+        Route::get('/{id}', [TypeFilesController::class, 'show']);
+        Route::delete('/{id}', [TypeFilesController::class, 'destroy']);
+        Route::post('/{id}/restore', [TypeFilesController::class, 'restore']);
+    });
 });
 
 Route::prefix('students')->group(function (){
-  //degrees routes
+  //Managers to students routes
     Route::prefix('studentsManagers')->group(function () {
         Route::get('/', [StudentManagerController::class, 'index']);
         Route::post('/', [StudentManagerController::class, 'store']);
