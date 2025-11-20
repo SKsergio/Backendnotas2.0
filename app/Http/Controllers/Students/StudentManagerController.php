@@ -57,7 +57,8 @@ class StudentManagerController extends Controller
             'direction' => 'required|string',
             'birthdate' => 'nullable|date|date_format:Y-m-d',
             'married_surname' => 'nullable|string',
-            'email' => 'required|email'
+            'email' => 'required|email',
+            'age' => 'required|number'
         ]);
 
 
@@ -70,8 +71,12 @@ class StudentManagerController extends Controller
         }
 
         try {
-            //aca ira el helper para calcular la edad()
             $age = $request->birthdate ? Carbon::parse($request->birthdate)->age : null;
+            if ($age != $request->age) {
+                return response()->json([
+                    'message'=>'la edad esta incorrecta'
+                ], 422);
+            }
             $newStudentManager =  StudentsManagers::create([
                 'DUI' => $request->DUI,
                 'passport' => $request->passport,
@@ -83,7 +88,7 @@ class StudentManagerController extends Controller
                 'direction' => $request->direction,
                 'birthdate' => $request->birthdate,
                 'email' => $request->email,
-                'age' => $age
+                'age' => $request->age
             ]);
 
             return response()->json($newStudentManager, 201);
@@ -132,7 +137,7 @@ class StudentManagerController extends Controller
             'direction' => 'nullable|string',
             'birthdate' => 'nullable|date|date_format:Y-m-d',
             'email' => 'nullable|email',
-
+            'age' => 'nullable|number'
         ]);
 
 
@@ -146,7 +151,6 @@ class StudentManagerController extends Controller
 
 
         try {
-            //validar que la fecha de nacimiento sea la misma, sino hacer el calculo de nuevo
             if ($request->has('birthdate')) {
                 $StudentManager->age = Carbon::parse($request->birthdate)->age;
             }
