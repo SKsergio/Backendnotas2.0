@@ -167,7 +167,7 @@ class DegreeController extends Controller
 
         if (!$degree) {
             return response()->json([
-                'message' => 'No hay grado para eliminar con este id'
+                'message' => 'No hay grado para restablecer con este id'
             ], 404);
         }
 

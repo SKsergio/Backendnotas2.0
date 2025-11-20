@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Models\Students;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+
+class StudentsManagers extends Model
+{
+
+    use SoftDeletes;//agragado para el borrado logico
+
+    protected $primaryKey  = 'id';
+
+    protected $table = 'students_managers';
+
+    protected $fillable = [
+        'DUI',
+        'passport',
+        'first_name',
+        'seccond_name',
+        'first_last_name',
+        'second_last_name',
+        'married_surname',
+        'direction',
+        'birthdate',
+        'email',
+        'age'
+    ];
+}
