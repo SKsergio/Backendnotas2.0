@@ -7,19 +7,22 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Students\StudentsManagers;
 use Illuminate\Support\Carbon;
+use App\Models\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class StudentManagerController extends Controller
 {
 
     public function index(Request $request)
     {
-        $query = StudentsManagers::query();
+        $query = StudentsManagers::query()->with('file');
 
         if ($request->has('search')) {
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('second_name', 'like', "%{$search}%")
+                    ->orWhere('seccond_name', 'like', "%{$search}%")
                     ->orWhere('first_last_name', 'like', "%{$search}%")
                     ->orWhere('second_last_name', 'like', "%{$search}%")
                     ->orWhere('DUI', 'like', "%{$search}%")
@@ -75,7 +78,7 @@ class StudentManagerController extends Controller
             $age = $request->birthdate ? Carbon::parse($request->birthdate)->age : null;
             if ($age != $request->age) {
                 return response()->json([
-                    'message'=>'la edad esta incorrecta'
+                    'message' => 'la edad esta incorrecta'
                 ], 422);
             }
             $newStudentManager =  StudentsManagers::create([
@@ -102,13 +105,11 @@ class StudentManagerController extends Controller
 
             $path = $file->store('uploads/ManagerStudents', 'public');
 
-
-
             $newStudentManager->file()->create([
                 'file_type_id' => $request->file_type_id,
                 'path' => $path,
                 'name' => $file->getClientOriginalName(),
-                'size' =>$file->getClientOriginalExtension()
+                'extension' => $file->getClientOriginalExtension()
             ]);
 
             return response()->json($newStudentManager, 201);
@@ -122,7 +123,7 @@ class StudentManagerController extends Controller
 
     public function show(string $id)
     {
-        $StudentManager = StudentsManagers::find($id);
+        $StudentManager = StudentsManagers::with('file')->find($id);
 
         if (!$StudentManager) {
             return response()->json([
@@ -146,58 +147,15 @@ class StudentManagerController extends Controller
             ], 404);
         }
 
-        $validacion = Validator::make($request->all(), [
-            'DUI' => 'nullable|string',
-            'first_name' => 'nullable|string|max:20',
-            'second_name' => 'nullable|string|max:20',
-            'first_last_name' => 'nullable|string|max:20',
-            'second_last_name' => 'nullable|string|max:20',
-            'married_surname' => 'nullable|string',
-            'passport' => 'nullable|string',
-            'direction' => 'nullable|string',
-            'birthdate' => 'nullable|date|date_format:Y-m-d',
-            'email' => 'nullable|email',
-            'age' => 'nullable|number'
-        ]);
-
-
-         if ($validacion->fails()) {
-            return response()->json([
-                'message' => 'Error en la validacion de datos',
-                'errors'  => $validacion->errors(),
-                'status'  => 422
-            ], 422);
-        }
-
-
-        try {
-            if ($request->has('birthdate')) {
-                $StudentManager->age = Carbon::parse($request->birthdate)->age;
-            }
-
-            $StudentManager->fill($request->only([
-                'DUI',
-                'first_name',
-                'second_name',
-                'first_last_name',
-                'second_last_name',
-                'married_surname',
-                'passport',
-                'direction',
-                'birthdate',
-                'email',
-            ]));
-
-            $StudentManager->save();
-
-            return response()->json($StudentManager, 201);
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'message' => 'Ocurrió un error interno',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        // Debug: Ver exactamente qué recibe el request
+        return response()->json([
+            'request_all' => $request->all(),
+            'request_input' => $request->input(),
+            'request_method' => $request->method(),
+            'content_type' => $request->header('content-type'),
+            'has_files' => $request->hasFile('photo') ? 'yes' : 'no',
+            'files' => $request->files->all(),
+        ], 200);
     }
 
     /**

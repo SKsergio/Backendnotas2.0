@@ -10,7 +10,7 @@ use App\Models\File;
 class StudentsManagers extends Model
 {
 
-    use SoftDeletes;//agragado para el borrado logico
+    use SoftDeletes; //agragado para el borrado logico
 
     protected $primaryKey  = 'id';
 
@@ -30,7 +30,13 @@ class StudentsManagers extends Model
         'age'
     ];
 
-    public function file(){
-        return $this->morphMany(File::class, 'fileable');
+    public function file()
+    {
+        return $this->morphOne(File::class, 'fileable');
+    }
+
+    public function getUrlAttribute()
+    {
+        return $this->file ? $this->file->path : null;
     }
 }

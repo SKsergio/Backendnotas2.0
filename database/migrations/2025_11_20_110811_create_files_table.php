@@ -18,7 +18,6 @@ return new class extends Migration
             $table->morphs('fileable');
             $table->string('extension')->nullable();
             $table->string('name')->nullable();
-            $table->softDeletes();
             $table->timestamps();
         });
     }

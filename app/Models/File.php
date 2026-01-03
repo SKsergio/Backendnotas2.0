@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\catalogues\TypeFile;
+use Illuminate\Support\Facades\Storage;
 
 class File extends Model
 {
     protected $primaryKey = 'id';
-
     protected $table = 'files';
+    protected $appends = ['url'];
+
 
     protected $fillable = [
         'file_type_id',
@@ -22,6 +24,11 @@ class File extends Model
 
     public function fileable(){
         return $this->morphTo();
+    }
+
+    public function getUrlAttribute()
+    {
+        return Storage::disk('public')->url($this->path);
     }
 
     public function type(){
